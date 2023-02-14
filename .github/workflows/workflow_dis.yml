@@ -49,6 +49,6 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          echo "The env to deploy the app is $!",
-          echo "The NAME of the app is $!",
-          echo "The WHEEL_VERSION of the app is $!"
+          echo "The IZ_ENV to deploy the app is : ${{ github.event.inputs.IZ_ENV }}"
+          echo "The RECORD_NAME to deploy the app is : ${{ github.event.inputs.RECORD_NAME }}"
+          echo "The WHEEL_VERSION to deploy the app is : ${{ github.event.inputs.WHEEL_VERSION }}"
