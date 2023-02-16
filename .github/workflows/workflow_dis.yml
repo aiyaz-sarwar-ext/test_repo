@@ -34,6 +34,15 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: deploy
+        run: |
+          echo deployment in production!
+          echo production variables APP NAME $APP_NAME
+          echo production secret ACCESS KEY ${{ secrets.SECRET_ACCESS_KEY }}
   # This workflow contains a single job called "build"
   build:
     env:
