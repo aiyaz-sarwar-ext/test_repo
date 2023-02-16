@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: deploy
+      - name: deployment 
         run: |
           echo deployment in production!
           echo production variables APP NAME $APP_NAME
