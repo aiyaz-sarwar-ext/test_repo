@@ -17,7 +17,9 @@ on:
         description: 'WHEEL_VERSION of the App'
         required: true
         default: '2023.02.14'  
-        
+ 
+env:
+  env_var: 'Snyk Demo' 
 # Controls when the workflow will run
 # on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -34,6 +36,8 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    env:
+        env_job: 'test_var_job'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -47,8 +51,15 @@ jobs:
         run: echo Hello, world!
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Run a multi-line script to print var declared in workflow discpatch
         run: |
           echo "The IZ_ENV to deploy the app is : ${{ github.event.inputs.IZ_ENV }}"
           echo "The RECORD_NAME to deploy the app is : ${{ github.event.inputs.RECORD_NAME }}"
           echo "The WHEEL_VERSION to deploy the app is : ${{ github.event.inputs.WHEEL_VERSION }}"
+          
+      - name: Print var delcared in the workflow_dis.yml
+        run: echo "Hello $env_var"
+        
+      - name: Print var declared in the job 
+        run: echo ${{env.env_job}} 
+      
