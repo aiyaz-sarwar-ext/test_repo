@@ -41,7 +41,7 @@ jobs:
       - name: deployment 
         run: |
           echo deployment in production!
-          echo production variables APP NAME ${{production.APP_NAME}}
+          echo production variables APP NAME ${{vars.APP_NAME}}
           echo production secret ACCESS KEY ${{ secrets.SECRET_ACCESS_KEY }}
   # This workflow contains a single job called "build"
   build:
