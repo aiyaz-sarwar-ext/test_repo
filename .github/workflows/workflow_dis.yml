@@ -53,18 +53,48 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: List repository
+        run: ls -al
+      - name: Install kubectl
+        run: |
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+            && curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256" \
+            && echo "$(<kubectl.sha256)  kubectl" | sha256sum --check \
+            && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+            && rm kubectl kubectl.sha256
+            kubectl version
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            role-to-assume: arn:aws:iam::${{ env.AWS_ACC_ID }}:role/iz-${{ env.SATS_TENANT }}-role-github-deployment-${{ env.IZ_ENV }}
+            aws-region: ${{ env.AWS_REG }}
+      - name: Update kubeconfig Uninstall ingress
+        id: kubeconfig
+        run: |
+            export TEMP_AWS_ROLE="arn:aws:iam::${{ env.AWS_ACC_ID }}:role/iz-${{ env.SATS_TENANT }}-role-developer-${{ env.AWS_REG_SHORT }}-${{ env.IZ_ENV }}"
+            export TEMP_AWS_ROLE_SESSION="MySession"
+            temp_role=$(aws sts  assume-role --role-arn $TEMP_AWS_ROLE --role-session-name "$TEMP_AWS_ROLE_SESSION")
+            export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq -r .Credentials.AccessKeyId)
+            export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq -r .Credentials.SecretAccessKey)
+            export AWS_SESSION_TOKEN=$(echo $temp_role | jq -r .Credentials.SessionToken)      
+            aws sts get-caller-identity
+            aws eks update-kubeconfig --name iz-cp-k8s-cluster-shared-${{ env.AWS_REG_SHORT }}-${{ env.IZ_ENV }} --region ${{ env.AWS_REG }}
+            kubectl config set-context --current --namespace=${{ env.SATS_TENANT }}
+            kubectl get pods
+            
+    
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
+      
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script to print var declared in workflow discpatch
         run: |
           echo "The IZ_ENV to deploy the app is : ${{ github.event.inputs.IZ_ENV }}"
           echo "The RECORD_NAME to deploy the app is : ${{ github.event.inputs.RECORD_NAME }}"
           echo "The WHEEL_VERSION to deploy the app is : ${{ github.event.inputs.WHEEL_VERSION }}"
+          
+     
           
       - name: Print var delcared in the workflow_dis.yml
         run: echo "Hello $env_var"
