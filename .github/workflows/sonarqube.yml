@@ -1,0 +1,23 @@
+name: SonarQube Integration
+
+on:
+  push:
+    branches:
+      - "*"
+jobs:
+  SonarQube-Tests:
+    runs-on: [self-hosted, linux, external-k8s]
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} //Sonar Token generated 
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} example URL (https://sq.bswlog.co.in/)
